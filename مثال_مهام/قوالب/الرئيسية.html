@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="تطبيق مهام عربي مبني بلغة نُطْق">
+  <title>مهامي | نُطْق</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container"><a href="/" class="brand">نُطْق <span>مهامي</span></a><p>تطبيق CRUD عربي مع قاعدة بيانات محلية</p></div>
+  </header>
+
+  <main class="container layout">
+    <section class="intro">
+      <p class="eyebrow">نُطْق 0.3</p>
+      <h1>نظّم عملك بلغة عربية</h1>
+      <p>تُحفظ المهام في SQLite، وتُدار من واجهة الويب أو واجهة JSON المكتوبة بالكامل في نُطْق.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="new-task-heading">
+      <h2 id="new-task-heading">مهمة جديدة</h2>
+      <form id="task-form">
+        <label for="task-title">العنوان</label>
+        <div class="form-row"><input id="task-title" maxlength="120" placeholder="مثال: قراءة دليل نُطْق" required autocomplete="off"><button type="submit">إضافة المهمة</button></div>
+      </form>
+      <p id="notice" role="status"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="tasks-heading">
+      <div class="section-heading"><h2 id="tasks-heading">المهام</h2><a href="/api/مهام" target="_blank">واجهة JSON</a></div>
+      <ul id="tasks" class="tasks">{{{مهام}}}</ul>
+    </section>
+  </main>
+
+  <footer class="container"><p>مثال متكامل: مسارات HTTP وقوالب وJSON وSQLite ومعالجة أخطاء — جميعها بلغة نُطْق.</p></footer>
+
+  <script>
+    const notice = document.getElementById('notice');
+    const showNotice = (text, isError = false) => {
+      notice.textContent = text;
+      notice.className = isError ? 'error' : 'success';
+    };
+
+    document.getElementById('task-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const input = document.getElementById('task-title');
+      const response = await fetch('/api/مهام', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({عنوان: input.value.trim()})
+      });
+      const result = await response.json();
+      if (!response.ok) return showNotice(result.خطأ || 'تعذرت إضافة المهمة.', true);
+      input.value = '';
+      showNotice('أضيفت المهمة بنجاح.');
+      window.setTimeout(() => location.reload(), 300);
+    });
+
+    document.getElementById('tasks').addEventListener('click', async (event) => {
+      const button = event.target;
+      const task = button.closest('.task');
+      if (!task) return;
+      const id = task.dataset.id;
+      const method = button.classList.contains('toggle') ? 'PATCH' : button.classList.contains('delete') ? 'DELETE' : null;
+      if (!method) return;
+      const response = await fetch('/api/مهام/' + id, {method});
+      if (!response.ok) return showNotice('تعذر تحديث المهمة.', true);
+      location.reload();
+    });
+  </script>
+</body>
+</html>

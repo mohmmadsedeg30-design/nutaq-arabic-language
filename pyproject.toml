@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nutaq"
+version = "0.3.0"
+description = "نُطْق: لغة برمجة عربية موسعة مع منصة ويب وبيانات محلية"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Manus AI" }]
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.scripts]
+nutaq = "nutaq.cli:main"
+
+[tool.setuptools]
+packages = ["nutaq"]

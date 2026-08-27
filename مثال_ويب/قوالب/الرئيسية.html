@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{عنوان}}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="container nav">
+      <a class="brand" href="/">نُطْق ويب</a>
+      <a href="/تواصل">تواصل</a>
+    </nav>
+    <section class="container hero-content">
+      <p class="eyebrow">من لغة نُطْق 0.2</p>
+      <h1>{{عنوان}}</h1>
+      <p>{{وصف}}</p>
+      <a class="button" href="/api/المنتجات">استكشف واجهة البيانات</a>
+    </section>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <p class="eyebrow">كتالوج حي</p>
+      <h2>لدينا {{عدد}} منتجات</h2>
+      <p>بطاقات هذه الصفحة أنشأتها دالة مكتوبة بالعربية، ثم عُرضت داخل قالب HTML.</p>
+    </section>
+    <section class="grid">
+      {{{بطاقات}}}
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <p>مثال تطبيقي لمنصة الويب العربية نُطْق.</p>
+  </footer>
+</body>
+</html>

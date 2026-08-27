@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{عنوان}} | نُطْق ويب</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="subhero">
+    <nav class="container nav">
+      <a class="brand" href="/">نُطْق ويب</a>
+      <a href="/">الرئيسية</a>
+    </nav>
+  </header>
+
+  <main class="container narrow">
+    <p class="eyebrow">مثال POST</p>
+    <h1>{{عنوان}}</h1>
+    <p>يرسل هذا النموذج JSON إلى مسار مكتوب بلغة نُطْق ثم يعرض نتيجة واجهة البيانات.</p>
+    <form id="contact-form" class="contact-form">
+      <label>الاسم <input name="الاسم" required></label>
+      <label>الرسالة <textarea name="الرسالة" rows="5" required></textarea></label>
+      <button class="button" type="submit">إرسال</button>
+    </form>
+    <pre id="result" aria-live="polite"></pre>
+  </main>
+
+  <script>
+    document.getElementById('contact-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const result = await fetch('/تواصل', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(Object.fromEntries(form))
+      });
+      document.getElementById('result').textContent = JSON.stringify(await result.json(), null, 2);
+    });
+  </script>
+</body>
+</html>
