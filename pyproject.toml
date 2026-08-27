@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nutaq"
-version = "0.3.0"
-description = "نُطْق: لغة برمجة عربية موسعة مع منصة ويب وبيانات محلية"
+version = "0.4.0"
+description = "نُطْق: لغة برمجة عربية موسعة مع ويب وبيانات وواجهة تفاعلية خفيفة"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Manus AI" }]

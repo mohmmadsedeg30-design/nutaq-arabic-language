@@ -133,6 +133,10 @@ class WebApp:
             return
 
         if method in {"GET", "HEAD"}:
+            embedded = self._embedded_asset(path)
+            if embedded is not None:
+                self._send(request_handler, embedded, include_body=method != "HEAD")
+                return
             static_response = self._static_response(path)
             if static_response is not None:
                 self._send(request_handler, static_response, include_body=method != "HEAD")
@@ -297,6 +301,17 @@ class WebApp:
 
         source = re.sub(r"\{\{\{\s*([^{}]+?)\s*\}\}\}", raw_replacement, source)
         return re.sub(r"\{\{\s*([^{}]+?)\s*\}\}", escaped_replacement, source)
+
+    @staticmethod
+    def _embedded_asset(path: str) -> Optional[WebResponse]:
+        """يعيد أصول مكتبة الواجهة المدمجة من دون الاعتماد على ملفات مشروع."""
+        if path == "/_نطق/ui.css":
+            from .ui import UI_CSS
+            return WebResponse(UI_CSS, 200, "text/css; charset=utf-8", {"Cache-Control": "public, max-age=3600"})
+        if path == "/_نطق/ui.js":
+            from .ui import UI_JS
+            return WebResponse(UI_JS, 200, "application/javascript; charset=utf-8", {"Cache-Control": "public, max-age=3600"})
+        return None
 
     def _static_response(self, path: str) -> Optional[WebResponse]:
         for mount in self.static_mounts:

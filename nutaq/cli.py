@@ -8,7 +8,7 @@ from pathlib import Path
 from .core import Lexer, NutaqError, parse, run
 
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 
 def repl() -> int:

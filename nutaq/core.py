@@ -1306,8 +1306,10 @@ class Interpreter:
         self._builtin("قيم", 1, 1, self._values)
         # استيرادات محلية تمنع دورات الاستيراد بين النواة وملحقاتها.
         from .stdlib import install_standard_extensions
+        from .ui import install_ui_builtins
         from .web import install_web_builtins
         install_standard_extensions(self)
+        install_ui_builtins(self)
         install_web_builtins(self)
 
     def _builtin(self, name: str, minimum: int, maximum: Optional[int], implementation: Callable[[list[Any], "Interpreter", Call], Any]) -> None:

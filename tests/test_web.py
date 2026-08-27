@@ -99,6 +99,16 @@ class TestWebPlatform(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read().decode("utf-8")), {"طريقة": method, "معرف": 12})
 
+    def test_embedded_ui_assets_are_served(self) -> None:
+        with self.fetch("/_نطق/ui.css") as response:
+            self.assertEqual(response.status, 200)
+            self.assertIn("text/css", response.headers["Content-Type"])
+            self.assertIn("--ن-أساسي", response.read().decode("utf-8"))
+        with self.fetch("/_نطق/ui.js") as response:
+            self.assertEqual(response.status, 200)
+            self.assertIn("javascript", response.headers["Content-Type"])
+            self.assertIn("data-نطق-نافذة", response.read().decode("utf-8"))
+
     def test_static_file_is_served(self) -> None:
         with self.fetch("/static/style.css") as response:
             self.assertEqual(response.status, 200)
