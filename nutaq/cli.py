@@ -8,10 +8,10 @@ from pathlib import Path
 from .core import Lexer, NutaqError, parse, run
 
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 
 
-def repl() -> int:
+def repl(terminal_rtl: bool = True) -> int:
     print(f"نُطْق {VERSION} — اكتب «خروج» للإنهاء.")
     print("ملاحظة: الوضع التفاعلي مخصص للتعبيرات والتعليمات ذات السطر الواحد.")
     while True:
@@ -25,7 +25,7 @@ def repl() -> int:
         if source in {"خروج", "exit", "quit"}:
             return 0
         try:
-            result = run(source)
+            result = run(source, terminal_rtl=terminal_rtl)
             if result is not None:
                 print(f"=> {result}")
         except NutaqError as error:
@@ -41,10 +41,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--تحقق", "--check", action="store_true", dest="check", help="تحليل الملف دون تشغيله")
     parser.add_argument("--رموز", "--tokens", action="store_true", dest="tokens", help="عرض الرموز المعجمية دون تشغيله")
     parser.add_argument("--إصدار", "--version", action="version", version=f"نُطْق {VERSION}")
+    parser.add_argument("--بدون-اتجاه-عربي", action="store_false", dest="terminal_rtl", default=True, help="تعطيل علامات اتجاه Unicode المساعدة في الطرفية")
     args = parser.parse_args(argv)
 
     if not args.file:
-        return repl()
+        return repl(args.terminal_rtl)
 
     path = Path(args.file)
     try:
@@ -63,7 +64,7 @@ def main(argv: list[str] | None = None) -> int:
             parse(source)
             print(f"الملف «{path.name}» صحيح نحويًا.")
             return 0
-        run(source, project_dir=path.parent)
+        run(source, project_dir=path.parent, terminal_rtl=args.terminal_rtl)
         return 0
     except NutaqError as error:
         print(error, file=sys.stderr)

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import sys
 from typing import Any, Callable, Optional
 import unicodedata
 
@@ -901,14 +902,32 @@ class Interpreter:
         output: Optional[Callable[[str], None]] = None,
         input_provider: Optional[Callable[[str], str]] = None,
         project_dir: Optional[str | Path] = None,
+        raw_output: Optional[Callable[[str], None]] = None,
+        terminal_rtl: bool = False,
     ):
         self.output = output or print
         self.input_provider = input_provider or input
+        self.raw_output = raw_output or self._write_stdout
+        self.terminal_rtl = terminal_rtl
         self.project_dir = Path(project_dir or ".").resolve()
         self.globals = Environment()
         self.environment = self.globals
         self.module_cache: dict[Path, NutaqModule] = {}
         self._install_builtins()
+
+    @staticmethod
+    def _write_stdout(text: str) -> None:
+        sys.stdout.write(text)
+        sys.stdout.flush()
+
+    def terminal_text(self, text: str) -> str:
+        """يضيف عزل اتجاه Unicode للنص العربي في وضع الطرفية فقط."""
+        if self.terminal_rtl and any("\u0600" <= character <= "\u06ff" for character in text):
+            return "\u2067" + text + "\u2069"
+        return text
+
+    def write_terminal(self, text: str) -> None:
+        self.raw_output(self.terminal_text(text))
 
     def interpret(self, program: Program) -> Any:
         try:
@@ -1306,9 +1325,11 @@ class Interpreter:
         self._builtin("قيم", 1, 1, self._values)
         # استيرادات محلية تمنع دورات الاستيراد بين النواة وملحقاتها.
         from .stdlib import install_standard_extensions
+        from .terminal import install_terminal_builtins
         from .ui import install_ui_builtins
         from .web import install_web_builtins
         install_standard_extensions(self)
+        install_terminal_builtins(self)
         install_ui_builtins(self)
         install_web_builtins(self)
 
@@ -1316,12 +1337,12 @@ class Interpreter:
         self.globals.define(name, NativeFunction(name, minimum, maximum, implementation))
 
     def _print(self, args: list[Any], _interpreter: "Interpreter", _node: Call) -> None:
-        self.output(" ".join(self.format_value(arg) for arg in args))
+        self.output(self.terminal_text(" ".join(self.format_value(arg) for arg in args)))
         return None
 
     def _input(self, args: list[Any], _interpreter: "Interpreter", _node: Call) -> str:
         prompt = self.format_value(args[0]) if args else ""
-        return self.input_provider(prompt)
+        return self.input_provider(self.terminal_text(prompt))
 
     def _length(self, args: list[Any], _interpreter: "Interpreter", node: Call) -> int:
         if not isinstance(args[0], (str, list, dict)):
@@ -1392,6 +1413,14 @@ def run(
     output: Optional[Callable[[str], None]] = None,
     input_provider: Optional[Callable[[str], str]] = None,
     project_dir: Optional[str | Path] = None,
+    raw_output: Optional[Callable[[str], None]] = None,
+    terminal_rtl: bool = False,
 ) -> Any:
     """ينفّذ مصدر نُطْق في بيئة جديدة، وهي دالة ملائمة للاختبارات والتضمين."""
-    return Interpreter(output=output, input_provider=input_provider, project_dir=project_dir).interpret(parse(source))
+    return Interpreter(
+        output=output,
+        input_provider=input_provider,
+        project_dir=project_dir,
+        raw_output=raw_output,
+        terminal_rtl=terminal_rtl,
+    ).interpret(parse(source))
